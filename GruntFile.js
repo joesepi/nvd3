@@ -37,7 +37,7 @@ module.exports = function(grunt) {
                 src: "src/**/*.js"
             },
             options: {
-                jshintrc: '.jshintrc'
+                // jshintrc: '.jshintrc'
             }
         },
         watch: {
