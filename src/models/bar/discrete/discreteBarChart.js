@@ -1,9 +1,9 @@
 function DiscreteBarChart(options){
 
     options = nv.utils.valueOrDefault(options, {
-        margin: {top: 15, right: 10, bottom: 50, left: 60}
-        , chartClass: 'discreteBarWithAxes'
-        , wrapClass: 'barsWrap'
+        margin: {top: 15, right: 10, bottom: 50, left: 60},
+        chartClass: 'discreteBarWithAxes',
+        wrapClass: 'barsWrap'
     });
 
     Chart.call(this, options);
@@ -32,13 +32,12 @@ DiscreteBarChart.prototype.wrapChart = function(data){
 
     Chart.prototype.wrapChart.call(this, data);
 
-    var rightAlignYAxis = this.rightAlignYAxis
-        , availableWidth = this.available.width
-        , availableHeight = this.available.height
-        , xTicksPadding = [5, 17]
-        , xTicks = availableWidth / 100
-        , yTicks = availableHeight / 36
-        ;
+    var rightAlignYAxis = this.rightAlignYAxis,
+        availableWidth = this.available.width,
+        availableHeight = this.available.height,
+        xTicksPadding = [5, 17],
+        xTicks = availableWidth / 100,
+        yTicks = availableHeight / 36;
 
     this.xAxis
         .orient('bottom')
@@ -99,7 +98,7 @@ DiscreteBarChart.prototype.wrapChart = function(data){
             this.g.select('.nv-x.nv-axis')
                 .selectAll('g')
                 .selectAll('text')
-                .attr('transform', function(d,i,j) { return 'translate(0,' + (j % 2 == 0 ? xTicksPadding[0] : xTicksPadding[1]) + ')' })
+                .attr('transform', function(d,i,j) { return 'translate(0,' + (j % 2 === 0 ? xTicksPadding[0] : xTicksPadding[1]) + ')' })
         }
     }
 
