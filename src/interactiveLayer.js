@@ -6,46 +6,54 @@ dispatch.elementMousemove is the important event to latch onto.  It is fired whe
 the rectangle. The dispatch is given one object which contains the mouseX/Y location.
 It also has 'pointXValue', which is the conversion of mouseX to the x-axis scale.
 */
-nv.interactiveGuideline = function() {
-	"use strict";
-	var tooltip = nv.models.tooltip()
-	//Public settings
-	, width = null
-	, height = null
-    //Please pass in the bounding chart's top and left margins
-    //This is important for calculating the correct mouseX/Y positions.
-	, margin = {left: 0, top: 0}
-	, xScale = d3.scale.linear()
-	, yScale = d3.scale.linear()
-	, dispatch = d3.dispatch('elementMousemove', 'elementMouseout','elementDblclick')
-	, showGuideLine = true
-	, svgContainer = null  
-    //Must pass in the bounding chart's <svg> container.
-    //The mousemove event is attached to this container.
-	;
+nv.interactiveGuideline = function () {
+    "use strict";
+    var tooltip = nv.models.tooltip(),
+    //Public settings
+        width = null,
+        height = null,
+        //Please pass in the bounding chart's top and left margins
+        //This is important for calculating the correct mouseX/Y positions.
+        margin = {
+            left: 0,
+            top: 0
+        },
+        xScale = d3.scale.linear(),
+        yScale = d3.scale.linear(),
+        dispatch = d3.dispatch('elementMousemove', 'elementMouseout',
+            'elementDblclick'),
+        showGuideLine = true,
+        svgContainer = null;
+        //Must pass in the bounding chart's <svg> container.
+        //The mousemove event is attached to this container.
 
-	//Private variables
-	var isMSIE = navigator.userAgent.indexOf("MSIE") !== -1  //Check user-agent for Microsoft Internet Explorer.
-	;
+    //Private variables
+    var isMSIE = navigator.userAgent.indexOf("MSIE") !== -1; //Check user-agent for Microsoft Internet Explorer.
 
-	function layer(selection) {
-		selection.each(function(data) {
+    function layer(selection) {
+        selection.each(function (data) {
 
             var container = d3.select(this);
 
-            var availableWidth = (width || 960), availableHeight = (height || 400);
+            var availableWidth = (width || 960),
+                availableHeight = (height || 400);
 
-            var wrap = container.selectAll("g.nv-wrap.nv-interactiveLineLayer").data([data]);
+            var wrap = container.selectAll(
+                "g.nv-wrap.nv-interactiveLineLayer")
+                .data([data]);
             var wrapEnter = wrap.enter()
-                .append("g").attr("class", " nv-wrap nv-interactiveLineLayer");
+                .append("g")
+                .attr("class", " nv-wrap nv-interactiveLineLayer");
 
-            wrapEnter.append("g").attr("class","nv-interactiveGuideLine");
+            wrapEnter.append("g")
+                .attr("class", "nv-interactiveGuideLine");
 
             if (!svgContainer) {
                 return;
             }
 
             function mouseHandler() {
+                /*jshint validthis:true */ // Because mbostoc does bad things to this
                 var d3mouse = d3.mouse(this);
                 var mouseX = d3mouse[0];
                 var mouseY = d3mouse[1];
@@ -71,7 +79,7 @@ nv.interactiveGuideline = function() {
                      position under this scenario. Removing the line below *will* cause
                      the interactive layer to not work right on IE.
                      */
-                    if(d3.event.target.tagName !== "svg")
+                    if (d3.event.target.tagName !== "svg")
                         subtractMargin = false;
 
                     if (d3.event.target.className.baseVal.match("nv-legend"))
@@ -79,7 +87,7 @@ nv.interactiveGuideline = function() {
 
                 }
 
-                if(subtractMargin) {
+                if (subtractMargin) {
                     mouseX -= margin.left;
                     mouseY -= margin.top;
                 }
@@ -87,16 +95,15 @@ nv.interactiveGuideline = function() {
                 /* If mouseX/Y is outside of the chart's bounds,
                  trigger a mouseOut event.
                  */
-                if (mouseX < 0 || mouseY < 0
-                    || mouseX > availableWidth || mouseY > availableHeight
-                    || (d3.event.relatedTarget && d3.event.relatedTarget.ownerSVGElement === undefined)
-                    || mouseOutAnyReason
-                    )
-                {
+                if (mouseX < 0 || mouseY < 0 || mouseX > availableWidth ||
+                    mouseY > availableHeight || (d3.event.relatedTarget &&
+                        d3.event.relatedTarget.ownerSVGElement ===
+                        undefined) || mouseOutAnyReason
+                ) {
                     if (isMSIE) {
-                        if (d3.event.relatedTarget
-                            && d3.event.relatedTarget.ownerSVGElement === undefined
-                            && d3.event.relatedTarget.className.match(tooltip.nvPointerEventsClass)) {
+                        if (d3.event.relatedTarget && d3.event.relatedTarget
+                            .ownerSVGElement === undefined && d3.event.relatedTarget
+                            .className.match(tooltip.nvPointerEventsClass)) {
                             return;
                         }
                     }
@@ -126,79 +133,83 @@ nv.interactiveGuideline = function() {
             }
 
             svgContainer
-                .on("mousemove",mouseHandler, true)
-                .on("mouseout" ,mouseHandler,true)
-                .on("dblclick" ,mouseHandler)
-            ;
+                .on("mousemove", mouseHandler, true)
+                .on("mouseout", mouseHandler, true)
+                .on("dblclick", mouseHandler);
 
             //Draws a vertical guideline at the given X postion.
-            layer.renderGuideLine = function(x) {
+            layer.renderGuideLine = function (x) {
                 if (!showGuideLine) return;
                 var line = wrap.select(".nv-interactiveGuideLine")
                     .selectAll("line")
-                    .data((x != null) ? [nv.utils.NaNtoZero(x)] : [], String);
+                    .data((x !== null) ? [nv.utils.NaNtoZero(x)] : [],
+                        String);
 
                 line.enter()
                     .append("line")
                     .attr("class", "nv-guideline")
-                    .attr("x1", function(d) { return d;})
-                    .attr("x2", function(d) { return d;})
+                    .attr("x1", function (d) {
+                        return d;
+                    })
+                    .attr("x2", function (d) {
+                        return d;
+                    })
                     .attr("y1", availableHeight)
-                    .attr("y2",0)
-                ;
-                line.exit().remove();
+                    .attr("y2", 0);
+                line.exit()
+                    .remove();
 
             }
-		});
-	}
+        });
+    }
 
-	layer.dispatch = dispatch;
-	layer.tooltip = tooltip;
+    layer.dispatch = dispatch;
+    layer.tooltip = tooltip;
 
-	layer.margin = function(_) {
-	    if (!arguments.length) return margin;
-	    margin.top    = typeof _.top    != 'undefined' ? _.top    : margin.top;
-	    margin.left   = typeof _.left   != 'undefined' ? _.left   : margin.left;
-	    return layer;
+    layer.margin = function (_) {
+        if (!arguments.length) return margin;
+        margin.top = typeof _.top != 'undefined' ? _.top : margin.top;
+        margin.left = typeof _.left != 'undefined' ? _.left : margin.left;
+        return layer;
     };
 
-	layer.width = function(_) {
-		if (!arguments.length) return width;
-		width = _;
-		return layer;
-	};
+    layer.width = function (_) {
+        if (!arguments.length) return width;
+        width = _;
+        return layer;
+    };
 
-	layer.height = function(_) {
-		if (!arguments.length) return height;
-		height = _;
-		return layer;
-	};
+    layer.height = function (_) {
+        if (!arguments.length) return height;
+        height = _;
+        return layer;
+    };
 
-	layer.xScale = function(_) {
-		if (!arguments.length) return xScale;
-		xScale = _;
-		return layer;
-	};
+    layer.xScale = function (_) {
+        if (!arguments.length) return xScale;
+        xScale = _;
+        return layer;
+    };
 
-	layer.showGuideLine = function(_) {
-		if (!arguments.length) return showGuideLine;
-		showGuideLine = _;
-		return layer;
-	};
+    layer.showGuideLine = function (_) {
+        if (!arguments.length) return showGuideLine;
+        showGuideLine = _;
+        return layer;
+    };
 
-	layer.svgContainer = function(_) {
-		if (!arguments.length) return svgContainer;
-		svgContainer = _;
-		return layer;
-	};
+    layer.svgContainer = function (_) {
+        if (!arguments.length) return svgContainer;
+        svgContainer = _;
+        return layer;
+    };
 
-	return layer;
+    return layer;
 };
 
 /* Utility class that uses d3.bisect to find the index in a given array, where a search value can be inserted.
 This is different from normal bisectLeft; this function finds the nearest index to insert the search value.
 
-For instance, lets say your array is [1,2,3,5,10,30], and you search for 28. 
+For instance, lets say your array is [1,2,3,5,10,30], and you search for 28.
 Normal d3.bisectLeft will return 4, because 28 is inserted after the number 10.  But interactiveBisect will return 5
 because 28 is closer to 30 than 10.
 
@@ -210,18 +221,21 @@ Has the following known issues:
 */
 nv.interactiveBisect = function (values, searchVal, xAccessor) {
     "use strict";
-    if (! values instanceof Array) return null;
+    if (!values instanceof Array) return null;
     if (typeof xAccessor !== 'function')
-        xAccessor = function(d) { return d.x };
+        xAccessor = function (d) {
+            return d.x
+        };
 
-    var bisect = d3.bisector(xAccessor).left;
-    var index = d3.max([0, bisect(values,searchVal) - 1]);
+    var bisect = d3.bisector(xAccessor)
+        .left;
+    var index = d3.max([0, bisect(values, searchVal) - 1]);
     var currentValue = xAccessor(values[index], index);
     if (typeof currentValue === 'undefined') currentValue = index;
 
-    if (currentValue === searchVal) return index;  //found exact match
+    if (currentValue === searchVal) return index; //found exact match
 
-    var nextIndex = d3.min([index+1, values.length - 1]);
+    var nextIndex = d3.min([index + 1, values.length - 1]);
     var nextValue = xAccessor(values[nextIndex], nextIndex);
     if (typeof nextValue === 'undefined') nextValue = nextIndex;
 
@@ -238,10 +252,11 @@ Otherwise, returns null.
 */
 nv.nearestValueIndex = function (values, searchVal, threshold) {
     "use strict";
-    var yDistMax = Infinity, indexToHighlight = null;
-    values.forEach(function(d,i) {
+    var yDistMax = Infinity,
+        indexToHighlight = null;
+    values.forEach(function (d, i) {
         var delta = Math.abs(searchVal - d);
-        if ( delta <= yDistMax && delta < threshold) {
+        if (delta <= yDistMax && delta < threshold) {
             yDistMax = delta;
             indexToHighlight = i;
         }
